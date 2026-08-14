@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnimeVerse</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080b14;
+    color: white;
+}
+
+header {
+    background: #101522;
+    padding: 18px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #ff4d8d;
+}
+
+.search {
+    display: flex;
+    width: min(500px, 100%);
+}
+
+.search input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    outline: none;
+    background: #202637;
+    color: white;
+    border-radius: 8px 0 0 8px;
+}
+
+.search button {
+    border: none;
+    padding: 0 18px;
+    background: #ff4d8d;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0;
+}
+
+.hero {
+    padding: 60px 5%;
+    background: linear-gradient(120deg, #171c32, #090b13);
+}
+
+.hero h1 {
+    font-size: clamp(35px, 7vw, 65px);
+    margin-bottom: 15px;
+}
+
+.hero p {
+    color: #b7bdca;
+    max-width: 650px;
+    line-height: 1.7;
+}
+
+.section {
+    padding: 30px 5%;
+}
+
+.section h2 {
+    margin-bottom: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #111625;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+}
+
+.card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.card-info {
+    padding: 12px;
+}
+
+.card-info h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-info p {
+    color: #aeb5c4;
+    font-size: 13px;
+}
+
+.rating {
+    color: #ffd166;
+    margin-top: 8px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #777;
+    border-top: 1px solid #202637;
+}
+
+/* Modal */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 30px;
+}
+
+.modal-box {
+    max-width: 850px;
+    margin: auto;
+    background: #111625;
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.details {
+    display: flex;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.details img {
+    width: 220px;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.details-text {
+    line-height: 1.7;
+}
+
+.details-text p {
+    margin-bottom: 12px;
+    color: #c3c8d4;
+}
+
+@media(max-width: 600px) {
+
+    header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .card img {
+        height: 220px;
+    }
+
+    .details {
+        flex-direction: column;
+    }
+
+    .details img {
+        width: 180px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">🌸 AnimeVerse</div>
+
+<div class="search">
+<input
+id="searchInput"
+type="text"
+placeholder="Search anime..."
+>
+<button onclick="searchAnime()">Search</button>
+</div>
+
+</header>
+
+<section class="hero">
+
+<h1>Welcome to AnimeVerse</h1>
+
+<p>
+Discover amazing anime, explore popular shows,
+search thousands of titles and find your next favorite anime.
+</p>
+
+</section>
+
+<section class="section">
+
+<h2>🔥 Top Anime</h2>
+
+<div id="topAnime" class="grid">
+<div class="loading">Loading anime...</div>
+</div>
+
+</section>
+
+<section class="section">
+
+<h2>📺 Current Season</h2>
+
+<div id="seasonAnime" class="grid">
+<div class="loading">Loading anime...</div>
+</div>
+
+</section>
+
+<section class="section" id="searchSection" style="display:none;">
+
+<h2>🔍 Search Results</h2>
+
+<div id="searchResults" class="grid"></div>
+
+</section>
+
+<footer>
+
+AnimeVerse © 2026  
+<br>
+Powered by Jikan API
+
+</footer>
+
+<div id="modal" class="modal">
+
+<div class="modal-box">
+
+<span class="close" onclick="closeModal()">×</span>
+
+<div id="modalContent"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "https://api.jikan.moe/v4";
+
+async function getAnime(url) {
+
+    try {
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("API error");
+        }
+
+        const data = await response.json();
+
+        return data.data || [];
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+
+    }
+
+}
+
+function createCard(anime) {
+
+    const image =
+        anime.images?.jpg?.large_image_url ||
+        anime.images?.jpg?.image_url ||
+        "";
+
+    const title =
+        anime.title ||
+        "Unknown Anime";
+
+    const score =
+        anime.score ?
+        `⭐ ${anime.score}` :
+        "⭐ N/A";
+
+    const genres =
+        anime.genres?.slice(0,2)
+        .map(g => g.name)
+        .join(" • ") ||
+        "Anime";
+
+    return `
+
+    <div class="card" onclick="showDetails(${anime.mal_id})">
+
+        <img
+        src="${image}"
+        alt="${escapeHTML(title)}"
+        loading="lazy"
+        >
+
+        <div class="card-info">
+
+            <h3>${escapeHTML(title)}</h3>
+
+            <p>${genres}</p>
+
+            <div class="rating">
+                ${score}
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+async function loadTopAnime() {
+
+    const container =
+        document.getElementById("topAnime");
+
+    const anime =
+        await getAnime(
+            `${API}/top/anime?limit=20`
+        );
+
+    if (!anime.length) {
+
+        container.innerHTML =
+            "<div class='loading'>Unable to load anime. Try again later.</div>";
+
+        return;
+
+    }
+
+    container.innerHTML =
+        anime.map(createCard).join("");
+
+}
+
+async function loadSeasonAnime() {
+
+    const container =
+        document.getElementById("seasonAnime");
+
+    const anime =
+        await getAnime(
+            `${API}/seasons/now?limit=20`
+        );
+
+    if (!anime.length) {
+
+        container.innerHTML =
+            "<div class='loading'>Unable to load current season.</div>";
+
+        return;
+
+    }
+
+    container.innerHTML =
+        anime.map(createCard).join("");
+
+}
+
+async function searchAnime() {
+
+    const input =
+        document.getElementById("searchInput");
+
+    const query =
+        input.value.trim();
+
+    if (!query) return;
+
+    const section =
+        document.getElementById("searchSection");
+
+    const results =
+        document.getElementById("searchResults");
+
+    section.style.display = "block";
+
+    results.innerHTML =
+        "<div class='loading'>Searching...</div>";
+
+    window.scrollTo({
+        top: section.offsetTop - 70,
+        behavior: "smooth"
+    });
+
+    const anime =
+        await getAnime(
+            `${API}/anime?q=${encodeURIComponent(query)}&limit=20`
+        );
+
+    if (!anime.length) {
+
+        results.innerHTML =
+            "<div class='loading'>No anime found.</div>";
+
+        return;
+
+    }
+
+    results.innerHTML =
+        anime.map(createCard).join("");
+
+}
+
+async function showDetails(id) {
+
+    const modal =
+        document.getElementById("modal");
+
+    const content =
+        document.getElementById("modalContent");
+
+    modal.style.display = "block";
+
+    content.innerHTML =
+        "<div class='loading'>Loading anime details...</div>";
+
+    const response =
+        await fetch(`${API}/anime/${id}/full`);
+
+    const result =
+        await response.json();
+
+    const anime =
+        result.data;
+
+    const image =
+        anime.images?.jpg?.large_image_url ||
+        anime.images?.jpg?.image_url ||
+        "";
+
+    const genres =
+        anime.genres?.map(g => g.name).join(", ") ||
+        "N/A";
+
+    const synopsis =
+        anime.synopsis ||
+        "No description available.";
+
+    content.innerHTML = `
+
+        <div class="details">
+
+            <img src="${image}" alt="${escapeHTML(anime.title)}">
+
+            <div class="details-text">
+
+                <h1>${escapeHTML(anime.title)}</h1>
+
+                <p>
+                    ⭐ Rating:
+                    ${anime.score || "N/A"}
+                </p>
+
+                <p>
+                    🎬 Episodes:
+                    ${anime.episodes || "Unknown"}
+                </p>
+
+                <p>
+                    📅 Status:
+                    ${anime.status || "Unknown"}
+                </p>
+
+                <p>
+                    🎭 Genres:
+                    ${genres}
+                </p>
+
+                <p>
+                    ${escapeHTML(synopsis)}
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+function closeModal() {
+
+    document.getElementById("modal").style.display = "none";
+
+}
+
+document
+.getElementById("searchInput")
+.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        searchAnime();
+
+    }
+
+});
+
+loadTopAnime();
+
+loadSeasonAnime();
+
+</script>
+
+</body>
+</html>
